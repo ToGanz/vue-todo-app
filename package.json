@@ -29,7 +29,9 @@
     },
     "extends": [
       "plugin:vue/vue3-essential",
-      "@vue/airbnb"
+      "@vue/airbnb",
+      "plugin:prettier/recommended",
+      "prettier/vue"
     ],
     "parserOptions": {
       "parser": "babel-eslint"

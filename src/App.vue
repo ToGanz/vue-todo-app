@@ -59,6 +59,8 @@
           },
         ],
         activeProject: {},
+        isLoading: false,
+        error: null,
       };
     },
     provide() {
@@ -69,13 +71,52 @@
       };
     },
     methods: {
+      loadProjects() {
+        this.isLoading = true;
+        this.error = null;
+        fetch(
+          "https://vue-todo-app-27774-default-rtdb.firebaseio.com/projects.json"
+        )
+          .then((response) => {
+            if (response.ok) {
+              return response.json();
+            }
+          })
+          .then((data) => {
+            this.isLoading = false;
+            const projects = [];
+            for (const id in data) {
+              projects.push({
+                id: id,
+                title: data[id].title,
+                tasks: data[id].tasks,
+              });
+            }
+            this.projects = projects;
+          })
+          .catch((error) => {
+            console.log(error);
+            this.isLoading = false;
+            this.error = "Failed to fetch data - please try again later.";
+          });
+      },
       // Project
-      addProject(title) {
+      async addProject(title) {
         const project = {
           id: new Date().toISOString(),
-          title,
-          tasks: [],
+          title
         };
+
+        const response = await fetch(
+          "https://vue-todo-app-27774-default-rtdb.firebaseio.com/projects.json",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(project),
+          }
+        );
         this.projects.push(project);
       },
       deleteProject(projectId) {
@@ -91,10 +132,13 @@
       },
       // Tasks
       addTask(task) {
+        console.log(task)
+        console.log(this.activeProject)
         this.activeProject.tasks.push({
           id: new Date().toISOString(),
           ...task,
         });
+        console.log(task)
       },
       deleteTask(taskId) {
         this.activeProject.tasks = this.activeProject.tasks.filter(
@@ -108,6 +152,9 @@
         this.activeProject.tasks.push(updatedTask);
       },
     },
+    mounted() {
+      this.loadProjects();
+    }
   };
 </script>
 
@@ -134,10 +181,10 @@
   }
 
   /*
-      WAT IS THIS?!
-      We inherit box-sizing: border-box; from our <html> selector
-      Apparently this is a bit better than applying box-sizing: border-box; directly to the * selector
-      */
+              WAT IS THIS?!
+              We inherit box-sizing: border-box; from our <html> selector
+              Apparently this is a bit better than applying box-sizing: border-box; directly to the * selector
+              */
   *,
   *:before,
   *:after {

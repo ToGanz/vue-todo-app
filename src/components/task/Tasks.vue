@@ -49,10 +49,16 @@
     },
     computed: {
       uncompletedTasks() {
-        return this.project.tasks.filter((task) => !task.completed);
+        if (this.project.tasks && this.project.tasks.length > 0) {
+          return this.project.tasks.filter((task) => !task.completed);
+        }
+        return [];
       },
       completedTasks() {
-        return this.project.tasks.filter((task) => task.completed);
+        if (this.project.tasks && this.project.tasks.length > 0) {
+          return this.project.tasks.filter((task) => task.completed);
+        }
+        return [];
       },
     },
     methods: {

@@ -26,39 +26,6 @@
     },
     data() {
       return {
-        projects: [
-          {
-            id: 1,
-            title: "project 1",
-            tasks: [
-              {
-                id: 1,
-                title: "task 1",
-                description: "description 1",
-                dueDate: "2022-02-21",
-                priority: 2,
-                completed: false,
-              },
-              {
-                id: 2,
-                title: "task 2",
-                description: "description 2",
-                dueDate: "2022-02-21",
-                priority: 3,
-                completed: false,
-              },
-              {
-                id: 3,
-                title: "task 3",
-                description: "description 3",
-                dueDate: "2022-03-31",
-                priority: 3,
-                completed: true,
-              },
-            ],
-          },
-        ],
-        activeProject: {},
         isLoading: false,
         error: null,
       };
@@ -71,9 +38,8 @@
       };
     },
     methods: {
-      loadProjects() {
+      async loadProjects() {
         this.isLoading = true;
-        this.error = null;
         fetch(
           "https://vue-todo-app-27774-default-rtdb.firebaseio.com/projects.json"
         )

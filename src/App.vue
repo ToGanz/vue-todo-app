@@ -2,12 +2,7 @@
   <header>
     <h1><span>Just do it</span></h1>
   </header>
-  <project-list
-    :projects="projects"
-    @add-project="addProject"
-    @delete-project="deleteProject"
-    @set-active-project="setActiveProject"
-  ></project-list>
+  <project-list></project-list>
   <tasks
     v-if="activeProject && Object.keys(activeProject).length > 0"
     :project="activeProject"
@@ -26,9 +21,13 @@
     },
     data() {
       return {
-        isLoading: false,
-        error: null,
       };
+    },
+    computed: {
+      activeProject() {
+        const project = this.$store.getters["projects/activeProject"];
+        return project;
+      },
     },
     provide() {
       return {
@@ -38,64 +37,6 @@
       };
     },
     methods: {
-      async loadProjects() {
-        this.isLoading = true;
-        fetch(
-          "https://vue-todo-app-27774-default-rtdb.firebaseio.com/projects.json"
-        )
-          .then((response) => {
-            if (response.ok) {
-              return response.json();
-            }
-          })
-          .then((data) => {
-            this.isLoading = false;
-            const projects = [];
-            for (const id in data) {
-              projects.push({
-                id: id,
-                title: data[id].title,
-                tasks: data[id].tasks,
-              });
-            }
-            this.projects = projects;
-          })
-          .catch((error) => {
-            console.log(error);
-            this.isLoading = false;
-            this.error = "Failed to fetch data - please try again later.";
-          });
-      },
-      // Project
-      async addProject(title) {
-        const project = {
-          id: new Date().toISOString(),
-          title
-        };
-
-        const response = await fetch(
-          "https://vue-todo-app-27774-default-rtdb.firebaseio.com/projects.json",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(project),
-          }
-        );
-        this.projects.push(project);
-      },
-      deleteProject(projectId) {
-        this.projects = this.projects.filter(
-          (project) => project.id !== projectId
-        );
-        this.activeProject = {};
-      },
-      setActiveProject(projectId) {
-        this.activeProject = this.projects.filter(
-          (project) => project.id === projectId
-        )[0];
-      },
       // Tasks
       addTask(task) {
         console.log(task)
@@ -118,9 +59,6 @@
         this.activeProject.tasks.push(updatedTask);
       },
     },
-    mounted() {
-      this.loadProjects();
-    }
   };
 </script>
 

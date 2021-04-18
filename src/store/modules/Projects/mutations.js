@@ -6,8 +6,8 @@ export default {
     state.projects = payload;
   },
   setActiveProject(state, payload) {
-    if (payload.projectId) {
-      state.activeProject = state.projects.filter(project => project.id === payload.projectId)[0];
+    if (payload.id) {
+      state.activeProject = state.projects.filter(project => project.id === payload.id)[0];
     } else {
       state.activeProject = null;
     }

@@ -67,7 +67,7 @@ export default {
       });
     }
   },
-  async fetchProjects(context) {
+  async loadProjects(context) {
     const response = await fetch(
       "https://vue-todo-app-27774-default-rtdb.firebaseio.com/projects.json"
     );

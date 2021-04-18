@@ -1,9 +1,13 @@
 <template>
   <section class="project-section">
-    <form @submit.prevent="addProject" class="formInput project-form">
+    <base-dialog :show="!!error" title="An error occured!" @close="handleError">
+      <p>{{ error }}</p>
+    </base-dialog>
+    <form @submit.prevent="submitForm" class="formInput project-form">
       <label for="project-title">Title</label>
       <input type="text" id="project-title" v-model="enteredTitle" />
       <button type="submit" class="addProject btn">Create Project</button>
+      <p class="errors" v-if="!formIsValid">Please enter a title.</p>
     </form>
     <button
       :aria-expanded="expanded"
@@ -16,7 +20,9 @@
       <span class="close">×</span>
       Projects
     </button>
-
+    <div v-if="isLoading">
+      <base-spinner></base-spinner>
+    </div>
     <ul class="mobile-menu list" id="projects-list">
       <li
         class="project"
@@ -33,28 +39,71 @@
 
 <script>
   export default {
-    props: ["projects"],
-    emits: ["add-project", "delete-project", "set-active-project"],
     data() {
       return {
         enteredTitle: "",
         expanded: false,
+        isLoading: false,
+        error: null,
+        formIsValid: true,
       };
+    },
+    computed: {
+      projects() {
+        const projects = this.$store.getters["projects/projects"];
+        return projects;
+      },
     },
     methods: {
       toggleNav() {
         this.expanded = !this.expanded;
       },
-      addProject() {
-        this.$emit("add-project", this.enteredTitle);
-        this.expanded = true;
+      async submitForm() {
+        this.formIsValid = true;
+        if (this.enteredTitle === "") {
+          this.formIsValid = false;
+          return;
+        }
+
+        try {
+          await this.$store.dispatch("projects/addProject", {
+            title: this.enteredTitle,
+          });
+          this.expanded = true;
+        } catch (error) {
+          this.error = error.message || "Something went wrong!";
+        }
       },
-      deleteProject(projectId) {
-        this.$emit("delete-project", projectId);
+      async deleteProject(projectId) {
+        try {
+          await this.$store.dispatch("projects/deleteProject", {
+            projectId,
+          });
+          this.expanded = true;
+        } catch (error) {
+          this.error = error.message || "Something went wrong!";
+        }
       },
       setActiveProject(projectId) {
-        this.$emit("set-active-project", projectId);
+        this.$store.dispatch("projects/setActiveProject", {
+          projectId,
+        });
       },
+      async loadProjects() {
+        this.isLoading = true;
+        try {
+          await this.$store.dispatch("projects/loadProjects");
+        } catch (error) {
+          this.error = error.message || "Something went wrong!";
+        }
+        this.isLoading = false;
+      },
+      handleError() {
+        this.error = null;
+      },
+    },
+    created() {
+      this.loadProjects();
     },
   };
 </script>

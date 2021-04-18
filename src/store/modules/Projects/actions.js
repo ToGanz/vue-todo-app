@@ -22,13 +22,14 @@ export default {
       throw error;
     }
 
+    const projectId = responseData.name;
     context.commit("addProject", {
       ...project,
-      id: responseData.localId
+      id: projectId
     });
 
     context.commit("setActiveProject", {
-      id: responseData.localId
+      id: projectId
     });
   },
   setActiveProject(context, data) {

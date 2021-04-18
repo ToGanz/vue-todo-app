@@ -6,16 +6,7 @@ const projectsModule = {
   namespaced: true,
   state() {
     return {
-      projects: [
-        {
-          id: 1,
-          title: "project 1"
-        },
-        {
-          id: 2,
-          title: "project 2"
-        }
-      ],
+      projects: [],
       activeProject: null
     };
   },

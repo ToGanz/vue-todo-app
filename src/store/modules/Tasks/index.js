@@ -6,6 +6,7 @@ const tasksModule = {
   namespaced: true,
   state() {
     return {
+      tasks: []
     }
   },
   getters,

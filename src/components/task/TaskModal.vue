@@ -1,5 +1,8 @@
 <template>
   <div id="task-modal" class="modal">
+    <base-dialog :show="!!error" title="An error occured!" @close="handleError">
+      <p>{{ error }}</p>
+    </base-dialog>
     <!-- Modal content -->
     <div class="modal-content">
       <span @click="close" id="addClose" class="close-modal">&times;</span>
@@ -22,17 +25,15 @@
         <button v-if="!task.id" @click="add" type="submit" class="addTask btn">
           Add Task
         </button>
-        <button v-if="task.id" @click="edit" type="submit" class="editTask btn">
+        <button v-if="task.id" @click="edit" class="editTask btn">
           Edit Task
         </button>
-        <button
-          v-if="task.id"
-          @click="destroy"
-          type="submit"
-          class="deleteTask btn"
-        >
+        <button v-if="task.id" @click="destroy" class="deleteTask btn">
           Delete Task
         </button>
+        <p class="errors" v-if="!formIsValid">
+          Please enter atleast a title and priority.
+        </p>
       </form>
     </div>
   </div>
@@ -42,22 +43,56 @@
   export default {
     emits: ["close-modal"],
     props: ["task"],
-    inject: ["addTask", "editTask", "deleteTask"],
+    data() {
+      return {
+        formIsValid: true,
+        error: null,
+      };
+    },
     methods: {
       close() {
         this.$emit("close-modal");
       },
-      add() {
-        this.addTask(this.task);
+      async add() {
+        this.formIsValid = true;
+        if (this.task.title === "" || this.task.priority === "") {
+          this.formIsValid = false;
+          return;
+        }
+
+        try {
+          await this.$store.dispatch("tasks/addTask", this.task);
+        } catch (error) {
+          this.error = error.message || "Something went wrong!";
+        }
         this.close();
       },
-      edit() {
-        this.editTask(this.task);
+      async edit() {
+        this.formIsValid = true;
+        if (this.task.title === "" || this.task.priority === "") {
+          this.formIsValid = false;
+          return;
+        }
+
+        try {
+          await this.$store.dispatch("tasks/editTask", this.task);
+        } catch (error) {
+          this.error = error.message || "Something went wrong!";
+        }
         this.close();
       },
-      destroy() {
-        this.deleteTask(this.task.id);
+      async destroy() {
+        try {
+          await this.$store.dispatch("tasks/deleteTask", {
+            taskId: this.task.id,
+          });
+        } catch (error) {
+          this.error = error.message || "Something went wrong!";
+        }
         this.close();
+      },
+      handleError() {
+        this.error = null;
       },
     },
   };

@@ -11,12 +11,7 @@
       <label class="checkbox-label" for="check">
         {{ task.completed ? "completed!" : "completed?" }}
       </label>
-      <input
-        class="check"
-        name="chckbox"
-        type="checkbox"
-        v-model="task.completed"
-      />
+      <input class="check" name="chckbox" type="checkbox" v-model="completed" />
     </div>
   </li>
 </template>
@@ -25,6 +20,11 @@
   export default {
     emits: ["show-modal"],
     props: ["task"],
+    data() {
+      return {
+        completed: this.task.completed,
+      };
+    },
     computed: {
       date() {
         if (this.task.dueDate) {
@@ -37,6 +37,17 @@
           return formattedDate;
         }
         return null;
+      },
+    },
+    watch: {
+      async completed() {
+        this.task.completed = this.completed;
+
+        try {
+          await this.$store.dispatch("tasks/editTask", this.task);
+        } catch (error) {
+          this.error = error.message || "Something went wrong!";
+        }
       },
     },
     methods: {

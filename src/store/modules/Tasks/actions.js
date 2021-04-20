@@ -1,21 +1,15 @@
-function getProjectId() {
-  const activeProject = context.rootGetters['projects/activeProject'];
-  if (activeProject) {
-    return activeProject.id;
-  }
-  return null;
-}
-
 export default {
-  async addtask(context, data) {
-    const projectId = getProjectId();
+  async addTask(context, data) {
+    const activeProject = context.rootGetters["projects/activeProject"];
+    const projectId = activeProject.id;
+
     const task = {
       title: data.title,
       dueDate: data.dueDate,
       priority: data.priority,
-      description: data.description
+      description: data.description,
+      completed: false
     };
-
     const response = await fetch(
       `https://vue-todo-app-27774-default-rtdb.firebaseio.com/tasks/${projectId}.json`,
       {
@@ -40,8 +34,10 @@ export default {
       id: taskId
     });
   },
-  async loadtasks(context) {
-    const projectId = getProjectId();
+  async loadTasks(context) {
+    const activeProject = context.rootGetters["projects/activeProject"];
+    const projectId = activeProject.id;
+
     const response = await fetch(
       `https://vue-todo-app-27774-default-rtdb.firebaseio.com/tasks/${projectId}.json`
     );
@@ -62,20 +58,23 @@ export default {
         dueDate: responseData[key].dueDate,
         priority: responseData[key].priority,
         description: responseData[key].description,
+        completed: responseData[key].completed
       };
       tasks.push(task);
     }
-
     context.commit("setTasks", tasks);
   },
   async editTask(context, data) {
-    const projectId = getProjectId();
+    const activeProject = context.rootGetters["projects/activeProject"];
+    const projectId = activeProject.id;
+
     const task = {
       id: data.id,
       title: data.title,
       dueDate: data.dueDate,
       priority: data.priority,
-      description: data.description
+      description: data.description,
+      completed: data.completed
     };
 
     const response = await fetch(
@@ -98,10 +97,12 @@ export default {
 
     context.commit("editTask", task);
   },
-  async deletetask(context, data) {
-    const projectId = getProjectId();
+  async deleteTask(context, data) {
+    const activeProject = context.rootGetters["projects/activeProject"];
+    const projectId = activeProject.id;
+
     if (!projectId) {
-      return 
+      return;
     }
     const taskId = data.taskId;
     const response = await fetch(
@@ -123,6 +124,6 @@ export default {
 
     context.commit("deleteTask", {
       taskId
-    }); 
-  },
+    });
+  }
 };

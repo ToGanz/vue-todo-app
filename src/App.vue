@@ -3,10 +3,7 @@
     <h1><span>Just do it</span></h1>
   </header>
   <project-list></project-list>
-  <tasks
-    v-if="activeProject && Object.keys(activeProject).length > 0"
-    :project="activeProject"
-  >
+  <tasks v-if="activeProject && Object.keys(activeProject).length > 0">
   </tasks>
 </template>
 
@@ -19,44 +16,10 @@
       ProjectList,
       Tasks,
     },
-    data() {
-      return {
-      };
-    },
     computed: {
       activeProject() {
         const project = this.$store.getters["projects/activeProject"];
         return project;
-      },
-    },
-    provide() {
-      return {
-        addTask: this.addTask,
-        editTask: this.editTask,
-        deleteTask: this.deleteTask,
-      };
-    },
-    methods: {
-      // Tasks
-      addTask(task) {
-        console.log(task)
-        console.log(this.activeProject)
-        this.activeProject.tasks.push({
-          id: new Date().toISOString(),
-          ...task,
-        });
-        console.log(task)
-      },
-      deleteTask(taskId) {
-        this.activeProject.tasks = this.activeProject.tasks.filter(
-          (task) => task.id !== taskId
-        );
-      },
-      editTask(updatedTask) {
-        this.activeProject.tasks = this.activeProject.tasks.filter(
-          (task) => task.id !== updatedTask.id
-        );
-        this.activeProject.tasks.push(updatedTask);
       },
     },
   };
@@ -85,10 +48,10 @@
   }
 
   /*
-              WAT IS THIS?!
-              We inherit box-sizing: border-box; from our <html> selector
-              Apparently this is a bit better than applying box-sizing: border-box; directly to the * selector
-              */
+                WAT IS THIS?!
+                We inherit box-sizing: border-box; from our <html> selector
+                Apparently this is a bit better than applying box-sizing: border-box; directly to the * selector
+                */
   *,
   *:before,
   *:after {

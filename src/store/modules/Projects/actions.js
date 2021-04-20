@@ -89,7 +89,6 @@ export default {
       };
       projects.push(project);
     }
-    console.log(context)
     context.commit("setProjects", projects);
   }
 };

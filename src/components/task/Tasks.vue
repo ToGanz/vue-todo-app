@@ -1,6 +1,6 @@
 <template>
   <section id="tasks-section">
-    <div class="active-project">{{ project.title }}</div>
+    <div class="active-project">{{ activeProject.title }}</div>
     <button class="popup btn" id="addTaskPopupButton" @click="showModal">
       Add Task
     </button>
@@ -10,6 +10,15 @@
       @close-modal="closeModal"
     >
     </task-modal>
+
+    <base-dialog :show="!!error" title="An error occured!" @close="handleError">
+      <p>{{ error }}</p>
+    </base-dialog>
+
+    <div v-if="isLoading">
+      <base-spinner></base-spinner>
+    </div>
+
     <ul id="tasks-list" class="list">
       <tasks-list
         v-for="task in uncompletedTasks"
@@ -40,23 +49,32 @@
       TasksList,
       TaskModal,
     },
-    props: ["project"],
     data() {
       return {
         modalIsVisible: false,
         taskToEdit: null,
+        isLoading: false,
+        error: null,
       };
     },
     computed: {
+      activeProject() {
+        const project = this.$store.getters["projects/activeProject"];
+        return project;
+      },
+      tasks() {
+        const tasks = this.$store.getters["tasks/tasks"];
+        return tasks;
+      },
       uncompletedTasks() {
-        if (this.project.tasks && this.project.tasks.length > 0) {
-          return this.project.tasks.filter((task) => !task.completed);
+        if (this.tasks && this.tasks.length > 0) {
+          return this.tasks.filter((task) => !task.completed);
         }
         return [];
       },
       completedTasks() {
-        if (this.project.tasks && this.project.tasks.length > 0) {
-          return this.project.tasks.filter((task) => task.completed);
+        if (this.tasks && this.tasks.length > 0) {
+          return this.tasks.filter((task) => task.completed);
         }
         return [];
       },
@@ -70,6 +88,26 @@
         this.taskIdToEdit = null;
         this.modalIsVisible = false;
       },
+      async loadTasks() {
+        this.isLoading = true;
+        try {
+          await this.$store.dispatch("tasks/loadTasks");
+        } catch (error) {
+          this.error = error.message || "Something went wrong!";
+        }
+        this.isLoading = false;
+      },
+      handleError() {
+        this.error = null;
+      },
+    },
+    watch: {
+      activeProject() {
+        this.loadTasks();
+      },
+    },
+    created() {
+      this.loadTasks();
     },
   };
 </script>

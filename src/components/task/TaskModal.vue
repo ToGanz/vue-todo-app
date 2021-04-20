@@ -55,7 +55,13 @@
       },
       async add() {
         this.formIsValid = true;
-        if (this.task.title === "" || this.task.priority === "") {
+        console.log(this.task);
+        if (
+          !this.task.title ||
+          this.task.title === "" ||
+          !this.task.priority ||
+          this.task.priority === ""
+        ) {
           this.formIsValid = false;
           return;
         }

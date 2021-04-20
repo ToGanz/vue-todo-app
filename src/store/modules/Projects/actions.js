@@ -39,6 +39,7 @@ export default {
   },
   async deleteProject(context, data) {
     const projectId = data.projectId;
+
     const response = await fetch(
       `https://vue-todo-app-27774-default-rtdb.firebaseio.com/projects/${projectId}.json`,
       {
@@ -67,6 +68,25 @@ export default {
         projectId: null
       });
     }
+
+    // delete the tasks
+    const taskResponse = await fetch(
+      `https://vue-todo-app-27774-default-rtdb.firebaseio.com/tasks/${projectId}.json`,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json"
+        }
+      }
+    );
+
+    const taskResponseData = await taskResponse.json();
+
+    if (!taskResponse.ok) {
+      const error = new Error(taskResponseData.message || "Failed to register data!");
+      throw error;
+    }
+
   },
   async loadProjects(context) {
     const response = await fetch(
